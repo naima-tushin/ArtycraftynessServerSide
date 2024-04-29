@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -8,11 +8,7 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-// naimatushin21
-// dSMyrROvb1FRIAxG
-const users = [
-    { id: 1, name: 'Sabana', email: "sabana@gmail.com" }
-]
+
 
 
 
@@ -32,15 +28,58 @@ async function run() {
         // // Connect the client to the server	(optional starting in v4.7)
         await client.connect();
 
-        const database = client.db("usersDB");
-        const userCollection = database.collection("users");
+        const database = client.db("CraftDB");
+        const craftCollection = database.collection("crafts");
 
-        app.post('/users', async (req, res) => {
-            const user = req.body;
-            console.log('new user', user);
-            const result = await userCollection.insertOne(user);
+        app.get('/craft', async (req, res) => {
+            const cursor = craftCollection.find();
+            const result = await cursor.toArray();
+            res.send(result);
+
+        });
+
+        app.get('/craft/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await craftCollection.findOne(query);
             res.send(result);
         });
+
+        app.post('/craft', async (req, res) => {
+            const craft = req.body;
+            console.log('new craft', craft);
+            const result = await craftCollection.insertOne(craft);
+            res.send(result);
+        });
+
+        app.put('/craft/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id)}
+            const options = { upsert: true };
+            const updatedCraft = req.body;
+            const craft = {
+                $set: {
+                    name: updatedCraft.name, 
+                    imageUrl: updatedCraft.imageUrl, subcategoryName: updatedCraft.subcategoryName, 
+                    shortDescription: updatedCraft.shortDescription, 
+                    price: updatedCraft.price, 
+                    rating: updatedCraft.rating, 
+                    customization: updatedCraft.customization, processingTime: updatedCraft.processingTime, 
+                    stockStatus: updatedCraft.stockStatus,
+                }
+            }
+            const result = await craftCollection.updateOne(filter, craft, options);
+            res.send(result);
+        });
+
+        app.delete('/craft/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await craftCollection.deleteOne(query);
+            res.send(result);
+        });
+
+
 
         // // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
