@@ -6,9 +6,10 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 //middleware
-app.use(cors());
 app.use(express.json());
-
+app.use(cors({
+    origin: ["https://users-management-server-five.vercel.app", "http://localhost:5000", "http://localhost:5173", "https://artsandcraft-16065.web.app"]
+  }));
 
 
 
