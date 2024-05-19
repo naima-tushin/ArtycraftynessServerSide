@@ -8,7 +8,7 @@ const port = process.env.PORT || 5000;
 //middleware
 app.use(express.json());
 app.use(cors({
-    origin: ["https://users-management-server-five.vercel.app", "http://localhost:5000", "http://localhost:5173", "https://artsandcraft-16065.web.app"]
+    origin: ["https://users-management-server-five.vercel.app", "http://localhost:5000", "http://localhost:5175", "https://artsandcraft-16065.web.app", "https://artsandcraft-16065.firebaseapp.com"]
   }));
 
 
@@ -27,7 +27,7 @@ const client = new MongoClient(uri, {
 async function run() {
     try {
         // // Connect the client to the server	(optional starting in v4.7)
-        await client.connect();
+        // await client.connect();
 
         const database = client.db("CraftDB");
         const craftCollection = database.collection("crafts");
@@ -50,6 +50,12 @@ async function run() {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) }
             const result = await craftCollection.findOne(query);
+            res.send(result);
+        });
+        app.get('/craftSubcategory/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await craftSubCategoryCollection.findOne(query);
             res.send(result);
         });
         app.get('/myCraft/:userEmail', async (req, res) => {
@@ -98,7 +104,7 @@ async function run() {
 
 
         // // Send a ping to confirm a successful connection
-        await client.db("admin").command({ ping: 1 });
+        // await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {
         // Ensures that the client will close when you finish/error
